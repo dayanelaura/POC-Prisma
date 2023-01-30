@@ -17,9 +17,18 @@ model movies {
 }
 
 model mylist {
-  id         Int    @id(map: "mylist_pk") @default(autoincrement())
-  movie_id   Int    @unique
+  id         Int     @id(map: "mylist_pk") @default(autoincrement())
+  movie_id   Int     @unique
   status     String
   created_at String
-  movies     movies @relation(fields: [movie_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "mylist_fk0")
+  likes      likes[]
+  movies     movies  @relation(fields: [movie_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "mylist_fk0")
+}
+
+model likes {
+  id         Int    @id(map: "likes_pk") @default(autoincrement())
+  movie_id   Int
+  rating     String
+  created_at String
+  mylist     mylist @relation(fields: [movie_id], references: [movie_id], onDelete: NoAction, onUpdate: NoAction, map: "likes_fk0")
 }
