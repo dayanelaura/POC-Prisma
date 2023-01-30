@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import dayjs from "dayjs";
 import { findMovieInMyList } from "../repositories/mylist-repository.js";
 import { Vote } from "../protocols/like.js";
-import { getLikedMoviesOfMyList, upsertVote } from "../repositories/likes-repository.js";
+import { findMyVotes, getLikedMoviesOfMyList, upsertVote } from "../repositories/likes-repository.js";
 
 export async function showLikedMovies(req: Request, res: Response){
     try{        
@@ -22,9 +22,17 @@ export async function likeOrDislike(req: Request, res: Response){
         if (!mylistDB)
             return res.sendStatus(404);
 
+    let rating: string;
+    const isThereVote = await findMyVotes(idNumber);
+    if (isThereVote.length>0){
+        isThereVote.map(value => value.rating==='liked'? rating = 'disliked' : rating = 'liked');
+    }else{
+        rating = 'liked';
+    }
+
     const voteObject = {
         movie_id: idNumber,
-        rating: 'disliked',
+        rating,
         created_at: dayjs().format('YYYY-MM-DD')
     } as Vote;
 
