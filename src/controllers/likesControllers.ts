@@ -3,11 +3,30 @@ import dayjs from "dayjs";
 import { findMovieInMyList } from "../repositories/mylist-repository.js";
 import { Vote } from "../protocols/like.js";
 import { findMyVotes, getLikedMoviesOfMyList, upsertVote } from "../repositories/likes-repository.js";
+import { MovieLiked } from "../protocols/movie.js";
 
 export async function showLikedMovies(req: Request, res: Response){
     try{        
         const movies = await getLikedMoviesOfMyList();
-        return res.status(200).send(movies);
+        const moviesArray = [];
+
+        const likedMovies = movies.filter(movie => movie.rating==="liked");
+
+        likedMovies.map( info => {
+
+            const movieLiked = {
+                movie_id: info.mylist.movie_id,
+                title: info.mylist.movies.title,
+                description: info.mylist.movies.description,
+                duration: info.mylist.movies.duration,
+                rating: info.rating,
+                status: info.mylist.status
+            } as MovieLiked;
+
+            moviesArray.push(movieLiked);
+        });
+
+        return res.status(200).send(moviesArray);
     }catch(err){
         console.log(err);
         res.send(err);
